@@ -3,7 +3,7 @@
 import type { AnalyzeUploadedResumeOutput } from "@/ai/flows/analyze-uploaded-resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThumbsUp, ThumbsDown, BrainCircuit, Briefcase, Bot } from "lucide-react";
+import { ThumbsUp, ThumbsDown, BrainCircuit, Briefcase } from "lucide-react";
 
 type AnalysisSectionProps = {
   title: string;
@@ -52,16 +52,10 @@ export function AnalysisResults({ analysis }: { analysis: AnalyzeUploadedResumeO
          <ScrollArea className="w-full max-w-4xl h-full pointer-events-auto">
           <div className="flex flex-col justify-center h-full py-8">
             <Card 
-              className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl transform hover:scale-[1.02] transition-transform duration-300 ease-in-out animate-fade-in-up"
+              className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl transform transition-transform duration-300 ease-in-out animate-fade-in-up"
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
             >
-              <CardHeader className="flex flex-row items-center gap-4">
-                <div className="p-3 bg-primary/20 rounded-lg text-primary">
-                  <Bot className="h-6 w-6" />
-                </div>
-                <CardTitle className="text-xl font-bold text-foreground">ResuAI</CardTitle>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <p className="text-foreground/80">{analysis.careerAdvice}</p>
               </CardContent>
             </Card>
