@@ -23,10 +23,10 @@ const AnalyzeUploadedResumeInputSchema = z.object({
 export type AnalyzeUploadedResumeInput = z.infer<typeof AnalyzeUploadedResumeInputSchema>;
 
 const AnalyzeUploadedResumeOutputSchema = z.object({
-  strengths: z.string().describe('Strengths of the resume or based on the user query.'),
-  weaknesses: z.string().describe('Weaknesses of the resume or areas for improvement based on the query.'),
-  careerAdvice: z.string().describe('Career advice based on the resume or query.'),
-  jobRecommendations: z.string().describe('Recommended jobs based on the resume or query.'),
+  strengths: z.string().optional().describe('Strengths of the resume. Should be empty if no resume is provided.'),
+  weaknesses: z.string().optional().describe('Weaknesses of the resume. Should be empty if no resume is provided.'),
+  careerAdvice: z.string().describe('Career advice based on the resume or a direct answer to a user\'s text query.'),
+  jobRecommendations: z.string().optional().describe('Recommended jobs. Should be empty if not relevant.'),
 });
 export type AnalyzeUploadedResumeOutput = z.infer<typeof AnalyzeUploadedResumeOutputSchema>;
 
@@ -40,17 +40,17 @@ const analyzeResumePrompt = ai.definePrompt({
   output: {schema: AnalyzeUploadedResumeOutputSchema},
   prompt: `You are a helpful and friendly career coach chatbot. Your goal is to provide insightful career advice.
 
-You will receive either a text-based query, a resume, or both. Use the provided information to answer the user's question or analyze their resume.
+You will receive either a text-based query, a resume, or both.
 
-If a resume is provided, analyze it and provide:
-- Strengths of the resume
-- Weaknesses of the resume
-- Career advice based on the resume
-- Job recommendations based on the resume
+- If a resume is provided, you MUST analyze it and provide:
+  - Strengths of the resume
+  - Weaknesses of the resume
+  - Career advice based on the resume
+  - Job recommendations based on the resume
 
-If only a text query is provided, act as a career chatbot and answer the user's question directly. In this case, you can leave the 'strengths' and 'weaknesses' fields empty and provide the answer in the 'careerAdvice' field. You can still provide job recommendations if it's relevant to the question.
+- If ONLY a text query is provided (no resume), you MUST act as a conversational chatbot like ChatGPT. Provide a direct, helpful answer to the user's query in the 'careerAdvice' field. In this case, the 'strengths', 'weaknesses', and 'jobRecommendations' fields MUST be empty strings or null.
 
-If both are provided, use the text query to focus your analysis of the resume.
+- If both a resume and a text query are provided, use the text query to focus your analysis of the resume.
 
 User's question or extra information: {{{extraInformation}}}
 
