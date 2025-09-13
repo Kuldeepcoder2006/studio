@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { getResumeAnalysis, FormState } from "@/app/actions";
 import Hero3D from "@/components/hero-3d";
 import { ResumeForm } from "@/components/resume-form";
@@ -14,7 +14,7 @@ const initialState: FormState = {
 };
 
 export default function Home() {
-  const [state, formAction] = useFormState(getResumeAnalysis, initialState);
+  const [state, formAction] = useActionState(getResumeAnalysis, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
