@@ -24,11 +24,14 @@ const AnalysisSection = ({ title, content, icon, delay }: AnalysisSectionProps) 
       <CardTitle className="text-xl font-bold text-foreground">{title}</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="text-foreground/80 whitespace-pre-line space-y-2">
-        {content.split('\n').map((line, index) => (
-          <p key={index}>{line.replace(/^- /, '• ')}</p>
-        ))}
-      </div>
+        <ul className="text-foreground/80 space-y-2">
+            {content.split(/\n- /).filter(item => item.trim() !== '').map((item, index) => (
+                <li key={index} className="flex items-start">
+                    <span className="text-primary mr-2 mt-1">•</span>
+                    <span>{item.trim()}</span>
+                </li>
+            ))}
+        </ul>
     </CardContent>
   </Card>
 );
