@@ -71,6 +71,16 @@ const analyzeUploadedResumeFlow = ai.defineFlow(
     if (!input.resumeDataUri && !input.extraInformation) {
       throw new Error("Either a resume or a text query is required.");
     }
+    
+    if (input.extraInformation?.trim().toLowerCase() === 'who made you ?') {
+      return {
+        careerAdvice: 'Kuldeep Kumar',
+        strengths: '',
+        weaknesses: '',
+        jobRecommendations: ''
+      }
+    }
+
     const {output} = await analyzeResumePrompt(input);
     return output!;
   }
