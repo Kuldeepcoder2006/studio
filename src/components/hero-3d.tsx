@@ -29,8 +29,8 @@ const Hero3D = () => {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    // Use a simpler geometry for better performance
-    const geometry = new THREE.IcosahedronGeometry(1.2, 0);
+    // A more complex and visually interesting geometry
+    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
     const material = new THREE.MeshStandardMaterial({
       color: 0x4f46e5, // A nice indigo color
       metalness: 0.5,
@@ -40,21 +40,20 @@ const Hero3D = () => {
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
     
-    const wireframeGeometry = new THREE.IcosahedronGeometry(1.2, 0);
+    const wireframeGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
     const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 });
     const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
     mesh.add(wireframe);
 
     const particlesGeometry = new THREE.BufferGeometry();
-    // Reduce particle count for better performance
-    const particlesCnt = 2000;
+    const particlesCnt = 5000; // Increased particle count
     const posArray = new Float32Array(particlesCnt * 3);
     for(let i = 0; i < particlesCnt * 3; i++) {
         posArray[i] = (Math.random() - 0.5) * 15;
     }
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.01,
+        size: 0.015, // Slightly larger particles
         color: 0xffffff,
         transparent: true,
         opacity: 0.5
@@ -82,11 +81,12 @@ const Hero3D = () => {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Slow down particle rotation
-      particlesMesh.rotation.y = -0.02 * elapsedTime;
+      mesh.rotation.x = 0.2 * elapsedTime;
+      mesh.rotation.y = 0.2 * elapsedTime;
+      particlesMesh.rotation.y = -0.05 * elapsedTime;
       if (mouseX > 0) {
-        particlesMesh.rotation.x = -0.02 * (mouseY.current - (window.innerHeight / 2)) / 200;
-        particlesMesh.rotation.y = -0.02 * (mouseX - (window.innerWidth / 2)) / 200;
+        particlesMesh.rotation.x = -0.1 * (mouseY.current - (window.innerHeight / 2)) / 100;
+        particlesMesh.rotation.y = -0.1 * (mouseX - (window.innerWidth / 2)) / 100;
       }
       
       controls.update();
@@ -113,7 +113,7 @@ const Hero3D = () => {
     };
   }, []);
 
-  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full -z-10 opacity-50" />;
+  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full -z-10 opacity-30" />;
 };
 
 export default Hero3D;
