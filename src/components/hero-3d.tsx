@@ -29,7 +29,8 @@ const Hero3D = () => {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    // Use a simpler geometry for better performance
+    const geometry = new THREE.IcosahedronGeometry(1.2, 0);
     const material = new THREE.MeshStandardMaterial({
       color: 0x4f46e5, // A nice indigo color
       metalness: 0.5,
@@ -39,13 +40,14 @@ const Hero3D = () => {
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
     
-    const wireframeGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    const wireframeGeometry = new THREE.IcosahedronGeometry(1.2, 0);
     const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 });
     const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
     mesh.add(wireframe);
 
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCnt = 7000;
+    // Reduce particle count for better performance
+    const particlesCnt = 2000;
     const posArray = new Float32Array(particlesCnt * 3);
     for(let i = 0; i < particlesCnt * 3; i++) {
         posArray[i] = (Math.random() - 0.5) * 15;
@@ -80,10 +82,11 @@ const Hero3D = () => {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      particlesMesh.rotation.y = -0.05 * elapsedTime;
+      // Slow down particle rotation
+      particlesMesh.rotation.y = -0.02 * elapsedTime;
       if (mouseX > 0) {
-        particlesMesh.rotation.x = -0.05 * (mouseY.current - (window.innerHeight / 2)) / 200;
-        particlesMesh.rotation.y = -0.05 * (mouseX - (window.innerWidth / 2)) / 200;
+        particlesMesh.rotation.x = -0.02 * (mouseY.current - (window.innerHeight / 2)) / 200;
+        particlesMesh.rotation.y = -0.02 * (mouseX - (window.innerWidth / 2)) / 200;
       }
       
       controls.update();
