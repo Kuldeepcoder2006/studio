@@ -18,25 +18,29 @@ export async function getResumeAnalysis(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const resumeFile = formData.get("resume") as File;
+  const resumeFile = formData.get("resume") as File | null;
   const extraInformation = formData.get("extraInformation") as string;
 
-  if (!resumeFile || resumeFile.size === 0) {
-    return { error: "Please upload a resume file." };
+  if ((!resumeFile || resumeFile.size === 0) && !extraInformation) {
+    return { error: "Please upload a resume or ask a question." };
   }
 
-  // File type and size validation
-  if (resumeFile.size > 5 * 1024 * 1024) { // 5MB limit
-      return { error: "File is too large. Please upload a file smaller than 5MB." };
+  let resumeDataUri: string | undefined = undefined;
+
+  if (resumeFile && resumeFile.size > 0) {
+    // File type and size validation
+    if (resumeFile.size > 5 * 1024 * 1024) { // 5MB limit
+        return { error: "File is too large. Please upload a file smaller than 5MB." };
+    }
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    if (!allowedTypes.includes(resumeFile.type)) {
+        return { error: "Invalid file type. Please upload a PDF, DOC, DOCX, or TXT file." };
+    }
+    resumeDataUri = await fileToDataUri(resumeFile);
   }
-  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-  if (!allowedTypes.includes(resumeFile.type)) {
-      return { error: "Invalid file type. Please upload a PDF, DOC, DOCX, or TXT file." };
-  }
+
 
   try {
-    const resumeDataUri = await fileToDataUri(resumeFile);
-
     const analysis = await analyzeUploadedResume({
       resumeDataUri,
       extraInformation,

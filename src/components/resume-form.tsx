@@ -23,6 +23,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 export function ResumeForm({ formAction }: { formAction: (payload: FormData) => void }) {
   const [file, setFile] = useState<File | null>(null);
+  const [text, setText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
@@ -67,6 +68,7 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
   }
   
   const { pending } = useFormStatus();
+  const isSubmitDisabled = (!file && !text.trim()) || pending;
 
   return (
     <form 
@@ -100,26 +102,28 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
           <Paperclip className="h-5 w-5"/>
           <span className="sr-only">Attach resume</span>
         </Button>
-        <input type="file" name="resume" ref={fileInputRef} className="hidden" onChange={onFileSelect} accept=".pdf,.doc,.docx,.txt" required={!file}/>
+        <input type="file" name="resume" ref={fileInputRef} className="hidden" onChange={onFileSelect} accept=".pdf,.doc,.docx,.txt" />
 
         <Textarea
             id="extraInformation"
             name="extraInformation"
-            placeholder={file ? "Any specific goals or roles you're targeting?" : "Attach your resume to get started..."}
+            placeholder="Ask a question or attach your resume to get started..."
             className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none flex-1 py-2 px-3 h-auto min-h-[2.5rem]"
             rows={1}
-            disabled={!file || pending}
+            disabled={pending}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (formRef.current && file) {
+                if (formRef.current && !isSubmitDisabled) {
                   formRef.current.requestSubmit();
                 }
               }
             }}
         />
 
-        <SubmitButton disabled={!file || pending} />
+        <SubmitButton disabled={isSubmitDisabled} />
       </div>
     </form>
   );
