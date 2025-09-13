@@ -13,7 +13,7 @@ type AnalysisSectionProps = {
 
 const AnalysisSection = ({ title, content, icon, delay }: AnalysisSectionProps) => (
   <Card 
-    className="bg-white/40 dark:bg-black/20 backdrop-blur-md border-white/30 dark:border-white/10 shadow-lg rounded-2xl transform hover:scale-[1.02] transition-transform duration-300 ease-in-out animate-fade-in"
+    className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl transform hover:scale-[1.02] transition-transform duration-300 ease-in-out animate-fade-in-up"
     style={{ animationDelay: delay, animationFillMode: 'backwards' }}
   >
     <CardHeader className="flex flex-row items-center gap-4">
@@ -38,11 +38,11 @@ export function AnalysisResults({ analysis }: { analysis: AnalyzeUploadedResumeO
   return (
     <div className="w-full max-w-6xl mx-auto py-12 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <AnalysisSection title="Strengths" content={analysis.strengths} icon={<ThumbsUp className="h-6 w-6" />} delay="0s" />
-            <AnalysisSection title="Weaknesses" content={analysis.weaknesses} icon={<ThumbsDown className="h-6 w-6" />} delay="0.2s" />
+            <AnalysisSection title="Strengths" content={analysis.strengths} icon={<ThumbsUp className="h-6 w-6" />} delay="0.5s" />
+            <AnalysisSection title="Weaknesses" content={analysis.weaknesses} icon={<ThumbsDown className="h-6 w-6" />} delay="0.7s" />
         </div>
-        <AnalysisSection title="Career Advice" content={analysis.careerAdvice} icon={<BrainCircuit className="h-6 w-6" />} delay="0.4s" />
-        <AnalysisSection title="Job Recommendations" content={analysis.jobRecommendations} icon={<Briefcase className="h-6 w-6" />} delay="0.6s" />
+        <AnalysisSection title="Career Advice" content={analysis.careerAdvice} icon={<BrainCircuit className="h-6 w-6" />} delay="0.9s" />
+        <AnalysisSection title="Job Recommendations" content={analysis.jobRecommendations} icon={<Briefcase className="h-6 w-6" />} delay="1.1s" />
     </div>
   );
 }

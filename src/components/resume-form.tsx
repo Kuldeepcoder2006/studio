@@ -150,7 +150,7 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
                 id="extraInformation"
                 name="extraInformation"
                 placeholder="e.g., 'I want to transition into a product manager role in the tech industry.'"
-                className="bg-white/80 dark:bg-black/50"
+                className="bg-background/80"
                 rows={3}
             />
         </div>

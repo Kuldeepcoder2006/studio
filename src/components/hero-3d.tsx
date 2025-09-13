@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three-orbitcontrols';
 
 const Hero3D = () => {
   const mountRef = useRef<HTMLDivElement>(null);
+  const mouseY = useRef(0);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -20,47 +22,55 @@ const Hero3D = () => {
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     currentMount.appendChild(renderer.domElement);
+    
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
 
-    const geometry = new THREE.IcosahedronGeometry(1.5, 0);
+    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
     const material = new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-      metalness: 0.3,
-      roughness: 0.6,
+      color: 0x4f46e5, // A nice indigo color
+      metalness: 0.5,
+      roughness: 0.1,
+      emissive: 0x1f1f1f,
     });
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
     
-    const wireframeGeometry = new THREE.IcosahedronGeometry(1.5, 0);
-    const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true, opacity: 0.1 });
+    const wireframeGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 });
     const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
-    scene.add(wireframe);
+    mesh.add(wireframe);
 
-    const particlesGeometry = new THREE.BufferGeometry;
-    const particlesCnt = 5000;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCnt = 7000;
     const posArray = new Float32Array(particlesCnt * 3);
     for(let i = 0; i < particlesCnt * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * (Math.random() * 5) * 5;
+        posArray[i] = (Math.random() - 0.5) * 15;
     }
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.005,
-        color: 0x000000
+        size: 0.01,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.5
     });
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
 
-    const pointLight = new THREE.PointLight(0xffffff, 30);
+    const pointLight = new THREE.PointLight(0xffffff, 500);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
     
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
     let mouseX = 0;
-    let mouseY = 0;
     const handleMouseMove = (event: MouseEvent) => {
         mouseX = event.clientX;
-        mouseY = event.clientY;
+        mouseY.current = event.clientY;
     }
     document.addEventListener('mousemove', handleMouseMove);
 
@@ -70,18 +80,13 @@ const Hero3D = () => {
       requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      mesh.rotation.y = .2 * elapsedTime;
-      mesh.rotation.x = .2 * elapsedTime;
-      wireframe.rotation.y = .2 * elapsedTime;
-      wireframe.rotation.x = .2 * elapsedTime;
-      
-      particlesMesh.rotation.y = -0.02 * elapsedTime;
-      
+      particlesMesh.rotation.y = -0.05 * elapsedTime;
       if (mouseX > 0) {
-        camera.position.x += ((mouseX / window.innerWidth * 2 - 1) * 1.5 - camera.position.x) * 0.05;
-        camera.position.y += (-(mouseY / window.innerHeight * 2 - 1) * 1.5 - camera.position.y) * 0.05;
-        camera.lookAt(scene.position);
+        particlesMesh.rotation.x = -0.05 * (mouseY.current - (window.innerHeight / 2)) / 200;
+        particlesMesh.rotation.y = -0.05 * (mouseX - (window.innerWidth / 2)) / 200;
       }
+      
+      controls.update();
 
       renderer.render(scene, camera);
     };
@@ -101,10 +106,11 @@ const Hero3D = () => {
       if (currentMount) {
         currentMount.removeChild(renderer.domElement);
       }
+      controls.dispose();
     };
   }, []);
 
-  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full -z-10 opacity-30 dark:opacity-20" />;
+  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full -z-10 opacity-50" />;
 };
 
 export default Hero3D;
