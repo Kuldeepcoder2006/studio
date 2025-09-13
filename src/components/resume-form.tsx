@@ -20,7 +20,13 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function ResumeForm({ formAction, formRef }: { formAction: (payload: FormData) => void, formRef: React.RefObject<HTMLFormElement> }) {
+type ResumeFormProps = {
+    formAction: (payload: FormData) => void;
+    onFormSubmit: (payload: FormData) => boolean;
+    formRef: React.RefObject<HTMLFormElement>;
+};
+
+export function ResumeForm({ formAction, onFormSubmit, formRef }: ResumeFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,21 +65,19 @@ export function ResumeForm({ formAction, formRef }: { formAction: (payload: Form
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    formAction(formData);
-    setText("");
-    removeFile();
-  }
-  
   const { pending } = useFormStatus();
   const isSubmitDisabled = (!file && !text.trim()) || pending;
 
   return (
     <form 
       ref={formRef} 
-      onSubmit={handleFormSubmit}
+      action={(formData) => {
+        if (onFormSubmit(formData)) {
+            formAction(formData);
+            setText("");
+            removeFile();
+        }
+      }}
       className="w-full space-y-2 animate-fade-in-up"
       style={{animationDelay: '0.3s', animationFillMode: 'backwards'}}
     >

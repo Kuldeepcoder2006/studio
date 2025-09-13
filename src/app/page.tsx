@@ -44,7 +44,7 @@ export default function Home() {
     }
   }, [state, toast]);
 
-  const handleFormSubmit = (formData: FormData) => {
+  const onFormSubmit = (formData: FormData) => {
     const text = formData.get('extraInformation') as string;
     const file = formData.get('resume') as File | null;
 
@@ -54,7 +54,7 @@ export default function Home() {
             description: "Please enter a message or upload a resume.",
             variant: "destructive",
         });
-        return;
+        return false;
     }
 
     const userMessageContent = (
@@ -67,7 +67,7 @@ export default function Home() {
         content: userMessageContent
     }]);
 
-    formAction(formData);
+    return true;
   }
 
   return (
@@ -98,7 +98,7 @@ export default function Home() {
           )}
 
         <div className="z-10 w-full max-w-4xl mx-auto pt-6">
-          <ResumeForm formAction={handleFormSubmit} formRef={formRef} />
+          <ResumeForm formAction={formAction} onFormSubmit={onFormSubmit} formRef={formRef} />
         </div>
       </main>
     </>
