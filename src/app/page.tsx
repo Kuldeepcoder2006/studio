@@ -8,7 +8,7 @@ import { AnalysisResults } from "@/components/analysis-results";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, User } from "lucide-react";
 
 const initialState: FormState = {
   analysis: undefined,
@@ -59,20 +59,25 @@ export default function Home() {
     }
 
     const userMessageContent = (
-      <Card className="flex-1 bg-primary/10 backdrop-blur-sm border-white/5 shadow-md">
-          <CardContent className="pt-6">
-              {text && <p className="text-foreground/90 whitespace-pre-wrap">{text}</p>}
-              {file && file.size > 0 && (
-                   <div className="mt-2 flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border text-sm">
-                      <div className="flex items-center gap-2">
-                          <FileText className="h-5 w-5 text-primary" />
-                          <span className="font-medium text-foreground">{file.name}</span>
-                          <span className="text-muted-foreground">({(file.size / 1024).toFixed(2)} KB)</span>
-                      </div>
-                  </div>
-              )}
-          </CardContent>
-      </Card>
+      <div className="flex items-start gap-4 animate-fade-in-up">
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+            <User className="w-5 h-5" />
+        </div>
+        <Card className="flex-1 bg-card/30 backdrop-blur-sm border-white/5 shadow-md">
+            <CardContent className="pt-6">
+                {text && <p className="text-foreground/90 whitespace-pre-wrap">{text}</p>}
+                {file && file.size > 0 && (
+                     <div className="mt-2 flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border text-sm">
+                        <div className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                            <span className="font-medium text-foreground">{file.name}</span>
+                            <span className="text-muted-foreground">({(file.size / 1024).toFixed(2)} KB)</span>
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+      </div>
     );
 
     setMessages(prev => [...prev, {
@@ -101,7 +106,7 @@ export default function Home() {
           ) : (
             <ScrollArea className="w-full max-w-4xl h-full flex-1 pointer-events-auto">
                 <div className="flex flex-col-reverse gap-4 justify-end py-4">
-                    {isPending && messages[messages.length-1].role === 'user' && (
+                    {isPending && messages[messages.length-1]?.role === 'user' && (
                          <AnalysisResults analysis={undefined} />
                     )}
                     {[...messages].reverse().map((msg) => (
