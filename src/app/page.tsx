@@ -6,8 +6,9 @@ import Hero3D from "@/components/hero-3d";
 import { ResumeForm } from "@/components/resume-form";
 import { AnalysisResults } from "@/components/analysis-results";
 import { useToast } from "@/hooks/use-toast";
-import { UserMessage } from "@/components/user-message";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 
 const initialState: FormState = {
   analysis: undefined,
@@ -58,7 +59,20 @@ export default function Home() {
     }
 
     const userMessageContent = (
-      <UserMessage text={text} file={file} />
+      <Card className="flex-1 bg-primary/10 backdrop-blur-sm border-white/5 shadow-md">
+          <CardContent className="pt-6">
+              {text && <p className="text-foreground/90 whitespace-pre-wrap">{text}</p>}
+              {file && file.size > 0 && (
+                   <div className="mt-2 flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border text-sm">
+                      <div className="flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-primary" />
+                          <span className="font-medium text-foreground">{file.name}</span>
+                          <span className="text-muted-foreground">({(file.size / 1024).toFixed(2)} KB)</span>
+                      </div>
+                  </div>
+              )}
+          </CardContent>
+      </Card>
     );
 
     setMessages(prev => [...prev, {
@@ -91,7 +105,7 @@ export default function Home() {
                          <AnalysisResults analysis={undefined} />
                     )}
                     {[...messages].reverse().map((msg) => (
-                        <div key={msg.id}>{msg.content}</div>
+                        <div key={msg.id} className="animate-fade-in-up">{msg.content}</div>
                     ))}
                 </div>
             </ScrollArea>
