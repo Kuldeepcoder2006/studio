@@ -1,57 +1,31 @@
 "use client";
 
-import { useState, useRef, ChangeEvent, DragEvent, useEffect } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import { UploadCloud, File, X, LoaderCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Paperclip, File, X, LoaderCircle, ArrowUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="lg" className="w-full font-bold" disabled={pending || disabled}>
+    <Button type="submit" size="icon" className="rounded-full w-8 h-8" disabled={pending || disabled}>
       {pending ? (
-        <>
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Analyzing...
-        </>
-      ) : "Analyze Your Resume"}
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+      ) : <ArrowUp className="h-4 w-4" />}
+       <span className="sr-only">Analyze Resume</span>
     </Button>
   );
 }
 
 export function ResumeForm({ formAction }: { formAction: (payload: FormData) => void }) {
   const [file, setFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const { pending } = useFormStatus();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (pending) {
-      setUploadProgress(0);
-      interval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(interval);
-            return prev;
-          }
-          return prev + 5;
-        });
-      }, 200);
-    } else {
-        if (uploadProgress > 0) {
-            setUploadProgress(100);
-            setTimeout(() => setUploadProgress(0), 1000);
-        }
-    }
-    return () => clearInterval(interval);
-  }, [pending, uploadProgress]);
   
   const handleFileChange = (selectedFile: File | null) => {
     if (selectedFile) {
@@ -78,22 +52,6 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
   const onFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     handleFileChange(e.target.files?.[0] ?? null);
   };
-  
-  const onDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  
-  const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-  
-  const onDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFileChange(e.dataTransfer.files?.[0] ?? null);
-  };
 
   const removeFile = () => {
     setFile(null);
@@ -102,60 +60,67 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
     }
   };
 
+  const handleFormAction = (formData: FormData) => {
+    formAction(formData);
+    // Note: We don't reset the form here immediately because we need the form state
+    // to show loading states etc. Resetting will happen based on analysis results.
+  }
+  
+  const { pending } = useFormStatus();
+
   return (
-    <form action={formAction} className="w-full space-y-6">
-        <div 
-          className={cn(
-            "relative flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-xl transition-colors duration-300",
-            isDragging ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
-          )}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
+    <form 
+      ref={formRef} 
+      action={handleFormAction} 
+      className="w-full space-y-2 animate-fade-in-up"
+      style={{animationDelay: '0.3s', animationFillMode: 'backwards'}}
+    >
+      {file && (
+        <div className="flex items-center justify-between p-2 rounded-lg bg-background/80 border border-border text-sm">
+            <div className="flex items-center gap-2">
+                <File className="h-5 w-5 text-primary" />
+                <span className="font-medium text-foreground">{file.name}</span>
+                <span className="text-muted-foreground">({(file.size / 1024).toFixed(2)} KB)</span>
+            </div>
+            <button type="button" onClick={removeFile} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+            </button>
+        </div>
+      )}
+
+      <div className="relative flex items-center w-full p-2 rounded-2xl bg-card/50 backdrop-blur-md border border-white/10 shadow-2xl">
+        <Button 
+          type="button" 
+          variant="ghost" 
+          size="icon" 
+          className="flex-shrink-0"
           onClick={() => fileInputRef.current?.click()}
+          disabled={pending}
         >
-          <input type="file" name="resume" ref={fileInputRef} className="hidden" onChange={onFileSelect} accept=".pdf,.doc,.docx,.txt" required/>
-          {file ? (
-            <div className="text-center">
-                <File className="mx-auto h-12 w-12 text-primary" />
-                <p className="mt-2 font-medium text-foreground">{file.name}</p>
-                <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
-                <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(); }} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-                    <X className="h-5 w-5" />
-                </button>
-            </div>
-          ) : (
-            <div className="text-center cursor-pointer">
-              <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-2 font-semibold text-foreground">Drag & drop your resume here</p>
+          <Paperclip className="h-5 w-5"/>
+          <span className="sr-only">Attach resume</span>
+        </Button>
+        <input type="file" name="resume" ref={fileInputRef} className="hidden" onChange={onFileSelect} accept=".pdf,.doc,.docx,.txt" required={!file}/>
 
-              <p className="text-sm text-muted-foreground">or click to browse</p>
-              <p className="mt-4 text-xs text-muted-foreground">PDF, DOC, DOCX, TXT (max 5MB)</p>
-            </div>
-          )}
-        </div>
+        <Textarea
+            id="extraInformation"
+            name="extraInformation"
+            placeholder={file ? "Any specific goals or roles you're targeting?" : "Attach your resume to get started..."}
+            className="bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none flex-1 py-2 px-3 h-auto min-h-[2.5rem]"
+            rows={1}
+            disabled={!file || pending}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (formRef.current && file) {
+                  formRef.current.requestSubmit();
+                }
+              }
+            }}
+        />
 
-        {(pending || (uploadProgress > 0 && uploadProgress < 100)) && file && (
-            <div className="space-y-2">
-                <Progress value={uploadProgress} className="w-full" />
-                <p className="text-sm text-center text-muted-foreground">
-                    {pending ? `Analyzing ${file.name}...` : `Analyzed ${file.name}!`}
-                </p>
-            </div>
-        )}
-
-        <div>
-            <label htmlFor="extraInformation" className="block text-sm font-medium text-foreground mb-2">Any specific goals or roles you're targeting?</label>
-            <Textarea
-                id="extraInformation"
-                name="extraInformation"
-                placeholder="e.g., 'I want to transition into a product manager role in the tech industry.'"
-                className="bg-background/80"
-                rows={3}
-            />
-        </div>
-        
-        <SubmitButton disabled={!file}/>
+        <SubmitButton disabled={!file || pending} />
+      </div>
     </form>
   );
 }
