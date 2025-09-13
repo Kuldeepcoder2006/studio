@@ -1,6 +1,8 @@
 "use server";
 
 import { analyzeUploadedResume, AnalyzeUploadedResumeOutput } from "@/ai/flows/analyze-uploaded-resume";
+import { unstable_noStore as noStore } from 'next/cache';
+
 
 export interface FormState {
   analysis?: AnalyzeUploadedResumeOutput;
@@ -18,6 +20,7 @@ export async function getResumeAnalysis(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
+  noStore();
   const resumeFile = formData.get("resume") as File | null;
   const extraInformation = formData.get("extraInformation") as string;
 

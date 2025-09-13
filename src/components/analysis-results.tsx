@@ -3,7 +3,8 @@
 import type { AnalyzeUploadedResumeOutput } from "@/ai/flows/analyze-uploaded-resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThumbsUp, ThumbsDown, BrainCircuit, Briefcase } from "lucide-react";
+import { ThumbsUp, ThumbsDown, BrainCircuit, Briefcase, LoaderCircle } from "lucide-react";
+import { Skeleton } from "./ui/skeleton";
 
 type AnalysisSectionProps = {
   title: string;
@@ -41,45 +42,49 @@ const AnalysisSection = ({ title, content, icon, delay }: AnalysisSectionProps) 
   );
 }
 
-export function AnalysisResults({ analysis }: { analysis: AnalyzeUploadedResumeOutput }) {
-  if (!analysis) return null;
+const LoadingState = () => (
+    <Card 
+        className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl animate-fade-in-up"
+    >
+        <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+                <LoaderCircle className="h-5 w-5 animate-spin text-primary" />
+                <p className="text-foreground/60">Analyzing...</p>
+            </div>
+            <div className="space-y-3 mt-4">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-[80%]" />
+                <Skeleton className="h-4 w-[90%]" />
+            </div>
+        </CardContent>
+    </Card>
+)
+
+export function AnalysisResults({ analysis }: { analysis?: AnalyzeUploadedResumeOutput }) {
+  if (!analysis) return <LoadingState />;
   
   const isChatbotResponse = !analysis.strengths && !analysis.weaknesses;
 
   if (isChatbotResponse) {
     return (
-       <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center p-4 sm:p-6 md:p-8 pointer-events-none">
-         <ScrollArea className="w-full max-w-4xl h-full pointer-events-auto">
-          <div className="flex flex-col justify-center h-full py-8">
-            <Card 
-              className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl transform transition-transform duration-300 ease-in-out animate-fade-in-up"
-              style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
-            >
-              <CardContent className="pt-6">
-                <p className="text-foreground/80">{analysis.careerAdvice}</p>
-              </CardContent>
-            </Card>
-          </div>
-         </ScrollArea>
-       </div>
+        <Card 
+            className="bg-card/50 backdrop-blur-md border-white/10 shadow-lg rounded-2xl animate-fade-in-up"
+            style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
+        >
+            <CardContent className="pt-6">
+            <p className="text-foreground/80 whitespace-pre-wrap">{analysis.careerAdvice}</p>
+            </CardContent>
+        </Card>
     );
   }
 
 
   return (
-    <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-between items-center p-4 sm:p-6 md:p-8 pointer-events-none">
-      <ScrollArea className="w-[45%] max-w-2xl h-full pointer-events-auto">
-        <div className="space-y-8 py-8">
-            <AnalysisSection title="Strengths" content={analysis.strengths || ""} icon={<ThumbsUp className="h-6 w-6" />} delay="0.5s" />
-            <AnalysisSection title="Career Advice" content={analysis.careerAdvice} icon={<BrainCircuit className="h-6 w-6" />} delay="0.9s" />
-        </div>
-      </ScrollArea>
-      <ScrollArea className="w-[45%] max-w-2xl h-full pointer-events-auto">
-        <div className="space-y-8 py-8">
-            <AnalysisSection title="Weaknesses" content={analysis.weaknesses || ""} icon={<ThumbsDown className="h-6 w-6" />} delay="0.7s" />
-            <AnalysisSection title="Job Recommendations" content={analysis.jobRecommendations || ""} icon={<Briefcase className="h-6 w-6" />} delay="1.1s" />
-        </div>
-      </ScrollArea>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <AnalysisSection title="Strengths" content={analysis.strengths || ""} icon={<ThumbsUp className="h-6 w-6" />} delay="0.5s" />
+        <AnalysisSection title="Weaknesses" content={analysis.weaknesses || ""} icon={<ThumbsDown className="h-6 w-6" />} delay="0.7s" />
+        <AnalysisSection title="Career Advice" content={analysis.careerAdvice} icon={<BrainCircuit className="h-6 w-6" />} delay="0.9s" />
+        <AnalysisSection title="Job Recommendations" content={analysis.jobRecommendations || ""} icon={<Briefcase className="h-6 w-6" />} delay="1.1s" />
     </div>
   );
 }

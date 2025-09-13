@@ -23,10 +23,10 @@ const AnalyzeUploadedResumeInputSchema = z.object({
 export type AnalyzeUploadedResumeInput = z.infer<typeof AnalyzeUploadedResumeInputSchema>;
 
 const AnalyzeUploadedResumeOutputSchema = z.object({
-  strengths: z.string().optional().describe('Strengths of the resume. Should be empty if no resume is provided.'),
-  weaknesses: z.string().optional().describe('Weaknesses of the resume. Should be empty if no resume is provided.'),
+  strengths: z.string().optional().describe('Strengths of the resume. Should be an empty string or null if no resume is provided.'),
+  weaknesses: z.string().optional().describe('Weaknesses of the resume. Should be an empty string or null if no resume is provided.'),
   careerAdvice: z.string().describe('Career advice based on the resume or a direct answer to a user\'s text query.'),
-  jobRecommendations: z.string().optional().describe('Recommended jobs. Should be empty if not relevant.'),
+  jobRecommendations: z.string().optional().describe('Recommended jobs. Should be an empty string or null if no resume is provided.'),
 });
 export type AnalyzeUploadedResumeOutput = z.infer<typeof AnalyzeUploadedResumeOutputSchema>;
 
@@ -47,10 +47,11 @@ You will receive either a text-based query, a resume, or both.
   - Weaknesses of the resume
   - Career advice based on the resume
   - Job recommendations based on the resume
+  All output fields should be populated.
 
-- If ONLY a text query is provided (no resume), you MUST act as a conversational chatbot like ChatGPT. Provide a direct, helpful answer to the user's query in the 'careerAdvice' field. In this case, the 'strengths', 'weaknesses', and 'jobRecommendations' fields MUST be empty strings or null.
+- If ONLY a text query is provided (no resume), you MUST act as a conversational chatbot like ChatGPT. Provide a direct, helpful answer to the user's query in the 'careerAdvice' field. In this scenario, the 'strengths', 'weaknesses', and 'jobRecommendations' fields MUST be null or empty strings.
 
-- If both a resume and a text query are provided, use the text query to focus your analysis of the resume.
+- If both a resume and a text query are provided, use the text query to focus your analysis of the resume, and populate all fields in the output.
 
 User's question or extra information: {{{extraInformation}}}
 

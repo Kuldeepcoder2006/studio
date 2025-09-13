@@ -3,9 +3,8 @@
 import { useState, useRef, ChangeEvent } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Paperclip, File, X, LoaderCircle, ArrowUp } from "lucide-react";
+import { Paperclip, FileText, X, LoaderCircle, ArrowUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +20,10 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function ResumeForm({ formAction }: { formAction: (payload: FormData) => void }) {
+export function ResumeForm({ formAction, formRef }: { formAction: (payload: FormData) => void, formRef: React.RefObject<HTMLFormElement> }) {
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
   
   const handleFileChange = (selectedFile: File | null) => {
@@ -61,10 +59,12 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
     }
   };
 
-  const handleFormAction = (formData: FormData) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     formAction(formData);
-    // Note: We don't reset the form here immediately because we need the form state
-    // to show loading states etc. Resetting will happen based on analysis results.
+    setText("");
+    removeFile();
   }
   
   const { pending } = useFormStatus();
@@ -73,14 +73,14 @@ export function ResumeForm({ formAction }: { formAction: (payload: FormData) => 
   return (
     <form 
       ref={formRef} 
-      action={handleFormAction} 
+      onSubmit={handleFormSubmit}
       className="w-full space-y-2 animate-fade-in-up"
       style={{animationDelay: '0.3s', animationFillMode: 'backwards'}}
     >
       {file && (
         <div className="flex items-center justify-between p-2 rounded-lg bg-background/80 border border-border text-sm">
             <div className="flex items-center gap-2">
-                <File className="h-5 w-5 text-primary" />
+                <FileText className="h-5 w-5 text-primary" />
                 <span className="font-medium text-foreground">{file.name}</span>
                 <span className="text-muted-foreground">({(file.size / 1024).toFixed(2)} KB)</span>
             </div>
