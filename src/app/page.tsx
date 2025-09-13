@@ -8,7 +8,7 @@ import { AnalysisResults } from "@/components/analysis-results";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, User } from "lucide-react";
+import { FileText } from "lucide-react";
 
 const initialState: FormState = {
   analysis: undefined,
@@ -59,11 +59,7 @@ export default function Home() {
     }
 
     const userMessageContent = (
-      <div className="flex items-start gap-4 animate-fade-in-up">
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-            <User className="w-5 h-5" />
-        </div>
-        <Card className="flex-1 bg-card/30 backdrop-blur-sm border-white/5 shadow-md">
+        <Card className="bg-card/30 backdrop-blur-sm border-white/5 shadow-md ml-auto max-w-2xl">
             <CardContent className="pt-6">
                 {text && <p className="text-foreground/90 whitespace-pre-wrap">{text}</p>}
                 {file && file.size > 0 && (
@@ -77,7 +73,6 @@ export default function Home() {
                 )}
             </CardContent>
         </Card>
-      </div>
     );
 
     setMessages(prev => [...prev, {
